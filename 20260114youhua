@@ -1,0 +1,67 @@
+[custom]
+; ==================== 第一步：源IP分流规则（必须置顶）====================
+; 说明：此部分规则根据内网设备源IP进行分流，优先级最高。
+; 1. 源IP为 192.168.50.2-63 的设备，流量进入“手动选择”组，并继续匹配后续详细规则。
+ruleset=🔧 内网源IP_走通用规则,[]SRC-IP-CIDR,192.168.50.2/26,🚀 手动选择,no-resolve
+; 2. 源IP为 192.168.50.64-254 的设备，所有流量强制直连，跳过后续所有规则。
+ruleset=🔧 内网源IP_强制直连,[]SRC-IP-CIDR,192.168.50.64/24,🎯 全球直连,no-resolve
+
+; ==================== 第二步：原有规则集（保持不变）====================
+;设置规则标志位
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/SteamCN.list
+ruleset=🌏 国内媒体,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaMedia.list
+ruleset=👁 国流媒体,https://raw.githubusercontent.com/kuzifanta/listmyself/refs/heads/main/CNmedia
+ruleset=🎮 索尼PS5,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Sony.list
+ruleset=🎮 Ubisoft,https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/UBI/UBI.list
+ruleset=🎮 steam平台,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Steam.list
+ruleset=🎮 暴雪战网,https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Battle/Battle.list
+ruleset=🤖 ChatGPT,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/OpenAi.list
+ruleset=😁 MyList,https://raw.githubusercontent.com/kuzifanta/listmyself/main/mylist
+; 注意：合并了Google规则，确保海外服务正确代理
+ruleset=😎 Google服务,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Ruleset/Google.list
+ruleset=📹 油管视频,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/YouTube.list
+ruleset=🎥 奈飞视频,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Netflix.list
+ruleset=🎥 HBO,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Ruleset/HBO.list
+ruleset=🎥 Disney,https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Disney/Disney.list
+ruleset=🎥 Twitch,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Ruleset/Twitch.list
+ruleset=🚀 全球代理,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyLite.list
+ruleset=🐟 漏网之鱼,[]FINAL
+;设置规则标志位
+
+; ==================== 第三步：策略组定义 ====================
+; 第一层：按地区分类的节点组（自动选择延迟最低的）
+custom_proxy_group=🇭🇰 香港节点`url-test`(港|HK|Hong)http://www.gstatic.com/generate_204 300,10
+custom_proxy_group=🇸🇬 狮城节点`url-test`(新|坡|狮城|SG|Singapore)http://www.gstatic.com/generate_204 300,10
+custom_proxy_group=🇯🇵 日本节点`url-test`(日|JP|Japan)http://www.gstatic.com/generate_204 300,10
+custom_proxy_group=🇺🇲 美国节点`url-test`(美|US|United)http://www.gstatic.com/generate_204 300,10
+custom_proxy_group=🇨🇳 台湾节点`url-test`(台|TW|Taiwan)http://www.gstatic.com/generate_204 300,10
+custom_proxy_group=🇬🇧 英国节点`url-test`(英|UK)http://www.gstatic.com/generate_204 300,10
+custom_proxy_group=🇰🇷 韩国节点`url-test`(KR|Korea|KOR|首尔|韩)http://www.gstatic.com/generate_204 300,10
+
+; 第二层：面向具体服务的策略组（直接选用合适地区）
+custom_proxy_group=🎥 奈飞视频`select`[]🇸🇬 狮城节点`[]🇭🇰 香港节点`[]🇺🇲 美国节点`[]🇯🇵 日本节点`[]DIRECT
+custom_proxy_group=🎥 Disney+`select`[]🇸🇬 狮城节点`[]🇺🇲 美国节点`[]🇭🇰 香港节点`[]🇯🇵 日本节点`[]DIRECT
+custom_proxy_group=🎥 HBO Max`select`[]🇺🇲 美国节点`[]🇸🇬 狮城节点`[]🇭🇰 香港节点`[]🇬🇧 英国节点`[]DIRECT
+custom_proxy_group=📹 油管视频`select`[]🇭🇰 香港节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇺🇲 美国节点`[]DIRECT
+custom_proxy_group=🎥 Twitch`select`[]🇺🇲 美国节点`[]🇭🇰 香港节点`[]🇸🇬 狮城节点`[]🇬🇧 英国节点`[]DIRECT
+custom_proxy_group=🤖 ChatGPT`select`[]🇸🇬 狮城节点`[]🇺🇲 美国节点`[]🇭🇰 香港节点`[]🇯🇵 日本节点`[]DIRECT
+custom_proxy_group=😎 Google服务`select`[]🇭🇰 香港节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇺🇲 美国节点`[]DIRECT
+custom_proxy_group=🎮 索尼PS5`select`[]DIRECT`[]🇭🇰 香港节点`[]🇺🇲 美国节点`[]🇯🇵 日本节点`[]🇸🇬 狮城节点
+custom_proxy_group=🎮 Ubisoft`select`[]DIRECT`[]🇭🇰 香港节点`[]🇺🇲 美国节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点
+custom_proxy_group=🎮 Steam/战网`select`[]DIRECT`[]🇭🇰 香港节点`[]🇺🇲 美国节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点
+custom_proxy_group=🌏 国内媒体`select`[]DIRECT`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点
+custom_proxy_group=👁 国流媒体`select`[]DIRECT`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点
+custom_proxy_group=🎯 全球直连`select`[]DIRECT`[]🚀 手动选择
+; 通用选择与兜底
+custom_proxy_group=🚀 手动选择`select`[]🇭🇰 香港节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇺🇲 美国节点`[]🇨🇳 台湾节点`[]🇬🇧 英国节点`[]🇰🇷 韩国节点`[]DIRECT
+custom_proxy_group=🐟 漏网之鱼`select`[]🚀 手动选择`[]DIRECT
+
+enable_rule_generator=true
+overwrite_original_rules=true
+
+; ==================== 第四步：启用基准配置（关键） ====================
+; 此基准配置提供 GEOIP,CN 等基础规则，并确保最终 MATCH 规则在最后。
+clash_rule_base=https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GeneralClashConfig.yml
